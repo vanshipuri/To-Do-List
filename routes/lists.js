@@ -22,6 +22,18 @@ router.post("/add/:customlistName", (req, res) => {
   res.redirect(`/lists/${listName}`);
 });
 
+// Delete a task from the list
+router.post("/delete/:customListName", (req, res) => {
+  const listName = req.params.customListName;
+  const indexToDelete = parseInt(req.body.taskIndex);
+
+  if (lists[listName] && indexToDelete >= 0) {
+    lists[listName].splice(indexToDelete, 1); // 🗑️ remove task
+  }
+
+  res.redirect(`/lists/${listName}`);
+});
+
 router.delete("/:customlistName", (req, res) => {
   // handle deletion
 });

@@ -24,11 +24,19 @@
       <button type="submit">➕ Add</button>
     </form>
 
+    
     <ul>
-      <% todos.forEach(function(task) { %>
-        <li><%= task %></li>
-      <% }) %>
-    </ul>
+  <% todos.forEach(function(task, index) { %>
+    <li>
+      <form action="/lists/delete/<%= listTitle %>" method="POST" style="display:inline;">
+        <input type="hidden" name="taskIndex" value="<%= index %>">
+        <%= task %>
+        <button type="submit">❌</button>
+      </form>
+    </li>
+  <% }) %>
+</ul>
+
   </body>
 
   <footer>
