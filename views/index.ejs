@@ -7,25 +7,17 @@
     <%- include('partials/header'); %>
   </head>
   <body>
-    <h2><%= listTitle %> List</h2>
-    <div class="side-container">
-    <!--add url link for various lists--> 
-<ul>
-  <li><a href="/lists/School">School To-do List</a></li>
-  <li><a href="/lists/Work">Work To-do List</a></li>
-  <li><a href="/lists/Homework">Homework To-do List</a></li>
-  <li><a href="/lists/Grocery">Grocery List</a></li>
-</ul>
-</div>
-<br><br>
-    <!-- ✅ FORM action fixed -->
+     <div class="list-name"> <h2><%= listTitle %> List</h2></div>
+ 
+      <div class="submit-form"> <!-- ✅ FORM action fixed -->
     <form action="/lists/add/<%= listTitle %>" method="POST">
       <input type="text" name="todo" placeholder="Add your task" required />
       <button type="submit">➕ Add</button>
     </form>
-
-    
-    <ul>
+</div>
+    <div class="container">
+   <div class="form-list">     
+   <ul>
   <% todos.forEach(function(task, index) { %>
     <li>
       <form action="/lists/delete/<%= listTitle %>" method="POST" style="display:inline;">
@@ -36,6 +28,22 @@
     </li>
   <% }) %>
 </ul>
+</div> 
+
+
+<div class="side-container">
+    <!--add url link for various lists--> 
+<ul>
+  <li><a href="/lists/School">School To-do List</a></li>
+  <li><a href="/lists/Work">Work To-do List</a></li>
+  <li><a href="/lists/Homework">Homework To-do List</a></li>
+  <li><a href="/lists/Grocery">Grocery List</a></li>
+</ul>
+</div>
+    </div>
+
+    
+   
 
   </body>
 
