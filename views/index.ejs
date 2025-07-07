@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>To-do List</title>
+    <%- include('partials/header'); %>
+  </head>
+  <body>
+    <h2><%= listTitle %> List</h2>
+    <div class="side-container">
+    <!--add url link for various lists--> 
+<ul>
+  <li><a href="/lists/School">School To-do List</a></li>
+  <li><a href="/lists/Work">Work To-do List</a></li>
+  <li><a href="/lists/Homework">Homework To-do List</a></li>
+  <li><a href="/lists/Grocery">Grocery List</a></li>
+</ul>
+</div>
+<br><br>
+    <!-- ✅ FORM action fixed -->
+    <form action="/lists/add/<%= listTitle %>" method="POST">
+      <input type="text" name="todo" placeholder="Add your task" required />
+      <button type="submit">➕ Add</button>
+    </form>
+
+    <ul>
+      <% todos.forEach(function(task) { %>
+        <li><%= task %></li>
+      <% }) %>
+    </ul>
+  </body>
+
+  <footer>
+    <%- include('partials/footer'); %>
+  </footer>
+</html>
+
