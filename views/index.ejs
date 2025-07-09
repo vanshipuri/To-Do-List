@@ -89,7 +89,7 @@
       <!-- Title -->
       <div class="mt-6">
         <h2 class="text-center text-3xl font-bold text-gray-800 mb-4">
-          <%= selectedList.name %>
+          <%= selectedList.name %> To-do
         </h2>
       </div>
 
@@ -129,7 +129,7 @@
             id="form-<%= task.id %>"
             class="flex items-center gap-3"
           >
-            <input type="hidden" name="taskIndex" value="<%= task.id %>" />
+            <input type="hidden" name="taskId" value="<%= task.id %>" />
 
             <input id="checkbox-<%= task.id %>" type="checkbox" <%=
             task.completed ? 'checked' : '' %>
@@ -141,13 +141,13 @@
               for="checkbox-<%= task.id %>"
               class="text-sm font-medium <%= task.completed ? 'text-gray-400 line-through' : 'text-gray-900' %> cursor-pointer"
             >
-              <%= task.name %>
+              <%= task.text %>
             </label>
           </form>
 
           <!-- 🗑️ Delete Button -->
           <form action="/lists/delete/<%= selectedList.id %>" method="POST">
-            <input type="hidden" name="taskIndex" value="<%= task.id %>" />
+            <input type="hidden" name="taskId" value="<%= task.id %>" />
             <button
               type="submit"
               class="bg-red-200 text-black px-3 py-1.5 rounded-lg hover:bg-red-400"

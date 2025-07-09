@@ -4,8 +4,8 @@ class Task {
   listId = undefined;
   completed = false;
 
-  constructor(id = 0, text = "", completed = false) {
-    this.id = id;
+  constructor(listId = 0, text = "", completed = false) {
+    this.listId = listId;
     this.text = text;
     this.completed = completed;
   }

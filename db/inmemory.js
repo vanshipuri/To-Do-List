@@ -58,7 +58,6 @@ class InMemoryRepository extends RepositoryBase {
   }
   async deleteTask(taskId) {
     this.tasks = this.tasks.filter((task) => task.id != taskId);
-    task.id = this.taskSequence--;
   }
 }
 
