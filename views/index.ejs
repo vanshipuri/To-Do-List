@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%= listTitle %> - To-do List</title>
+    <title><%= selectedList.name %> - To-do List</title>
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body
@@ -53,10 +53,10 @@
           <% allLists.forEach(function(list) { %>
           <li class="flex items-center gap-2">
             <a
-              href="/lists/<%= list %>"
-              class="<%= listTitle === list ? 'text-white bg-indigo-700 px-2 py-1 ml-auto rounded-lg' : 'text-gray-600 hover:text-indigo-600' %>"
+              href="/lists/<%= list.id %>"
+              class="<%= list.id === selectedList.id ? 'text-white bg-indigo-700 px-2 py-1 ml-auto rounded-lg' : 'text-gray-600 hover:text-indigo-600' %>"
             >
-              <%= list %>
+              <%= list.name %>
             </a>
           </li>
           <% }) %>
@@ -89,7 +89,7 @@
       <!-- Title -->
       <div class="mt-6">
         <h2 class="text-center text-3xl font-bold text-gray-800 mb-4">
-          <%= listTitle %> List
+          <%= selectedList.name %>
         </h2>
       </div>
 
@@ -98,7 +98,7 @@
       >
         <!-- 📝 Add Task Form -->
         <form
-          action="/lists/add/<%= listTitle %>"
+          action="/lists/add/<%= selectedList.id %>"
           method="POST"
           class="flex gap-2 w-full md:max-w-lg shadow"
         >
@@ -120,24 +120,25 @@
       </div>
 
       <ul class="space-y-3">
-        <% todos.forEach(function(task, index) { %>
+        <% tasks.forEach(function(task) { %>
         <li class="flex justify-between items-center border-b pb-2">
           <!-- 🔘 Checkbox and Task Name -->
           <form
-            action="/lists/<%= task.completed ? 'incomplete' : 'complete' %>/<%= listTitle %>"
+            action="/lists/<%= task.completed ? 'incomplete' : 'complete' %>/<%= selectedList.id %>"
             method="POST"
-            id="form-<%= index %>"
+            id="form-<%= task.id %>"
             class="flex items-center gap-3"
           >
-            <input type="hidden" name="taskIndex" value="<%= index %>" />
+            <input type="hidden" name="taskIndex" value="<%= task.id %>" />
 
-            <input id="checkbox-<%= index %>" type="checkbox" <%= task.completed
-            ? 'checked' : '' %> onchange="document.getElementById('form-<%=
-            index %>').submit()" class="w-4 h-4 text-blue-600 bg-gray-100
-            border-gray-300 rounded-sm focus:ring-blue-500" />
+            <input id="checkbox-<%= task.id %>" type="checkbox" <%=
+            task.completed ? 'checked' : '' %>
+            onchange="document.getElementById('form-<%= task.id %>').submit()"
+            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm
+            focus:ring-blue-500" />
 
             <label
-              for="checkbox-<%= index %>"
+              for="checkbox-<%= task.id %>"
               class="text-sm font-medium <%= task.completed ? 'text-gray-400 line-through' : 'text-gray-900' %> cursor-pointer"
             >
               <%= task.name %>
@@ -145,8 +146,8 @@
           </form>
 
           <!-- 🗑️ Delete Button -->
-          <form action="/lists/delete/<%= listTitle %>" method="POST">
-            <input type="hidden" name="taskIndex" value="<%= index %>" />
+          <form action="/lists/delete/<%= selectedList.id %>" method="POST">
+            <input type="hidden" name="taskIndex" value="<%= task.id %>" />
             <button
               type="submit"
               class="bg-red-200 text-black px-3 py-1.5 rounded-lg hover:bg-red-400"

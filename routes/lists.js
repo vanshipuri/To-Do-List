@@ -1,94 +1,85 @@
 const express = require("express");
 const router = express.Router();
+const Repository = require("../db");
 
-// ⬅️ Initialize your lists with object-based tasks
-let lists = { Default: [] };
+const repository = new Repository();
 
 // 🟢 GET: Render custom list
-router.get("/:customlistName", (req, res) => {
-  const listName = req.params.customlistName;
+router.get("/:listId", async (req, res) => {
+  let list = await repository.findList(req.params.listId);
+  if (!list) {
+    list = await repository.createList("My List");
+  }
 
-  if (!lists[listName]) lists[listName] = [];
+  const tasks = await repository.getListTasks(list.id);
+
+  const allLists = await repository.getLists();
 
   res.render("index", {
-    listTitle: listName,
-    todos: lists[listName],
-    allLists: Object.keys(lists)
+    selectedList: list,
+    tasks: tasks,
+    allLists: allLists,
   });
 });
 
 // 🟢 POST: Add a new task to a list
-router.post("/add/:customlistName", (req, res) => {
-  const listName = req.params.customlistName;
-  const newTaskText = req.body.todo;
+router.post("/add/:listId", (req, res) => {
+  const list = repository.findList(req.params.listId);
+  if (list && req.body.todo) {
+    repository.createTask(list, req.body.todo);
+  }
 
-  if (!lists[listName]) lists[listName] = [];
-  // ✅ Save task as object with completion flag
-  const taskObject = { name: newTaskText, completed: false };
-  lists[listName].push(taskObject);
-
-  res.redirect(`/lists/${listName}`);
+  res.redirect(`/lists/${req.params.listId}`);
 });
-
 
 // ✅ 2. Create New List Route (🚨 should NOT be inside another route)
 router.post("/create", (req, res) => {
   const newListName = req.body.newList.trim();
 
   if (newListName.length > 0) {
-    const formatted = newListName.charAt(0).toUpperCase() + newListName.slice(1);
-    if (!lists[formatted]) {
-      lists[formatted] = [];
-    }
-    res.redirect(`/lists/${formatted}`);
+    const formatted =
+      newListName.charAt(0).toUpperCase() + newListName.slice(1);
+    const newList = repository.createList(formatted);
+    res.redirect(`/lists/${newList.id}`);
   } else {
     res.redirect("/"); // fallback
   }
 });
 
-
 // ✅ POST: Mark task as completed
-router.post("/complete/:customlistName", (req, res) => {
-  const listName = req.params.customlistName;
-  const taskIndex = parseInt(req.body.taskIndex);
-
-  if (lists[listName] && lists[listName][taskIndex]) {
-    lists[listName][taskIndex].completed = true;
+router.post("/complete/:listId", (req, res) => {
+  const taskId = req.body.taskId;
+  const task = repository.findTask(taskId);
+  if (task) {
+    task.completed = true;
+    repository.updateTask(task);
   }
-
-  res.redirect(`/lists/${listName}`);
+  res.redirect(`/lists/${req.params.listId}`);
 });
 
 // ✅ POST: Mark task as incompleted
-router.post("/incomplete/:customlistName", (req, res) => {
-  const listName = req.params.customlistName;
-  const taskIndex = req.body.taskIndex;
-
-  if (lists[listName] && lists[listName][taskIndex]) {
-    lists[listName][taskIndex].completed = false;
+router.post("/incomplete/:listId", (req, res) => {
+  const taskId = req.body.taskId;
+  const task = repository.findTask(taskId);
+  if (task) {
+    task.completed = false;
+    repository.updateTask(task);
   }
 
-  res.redirect(`/lists/${listName}`);
+  res.redirect(`/lists/${req.params.listId}`);
 });
 
-
 // 🗑️ POST: Delete a task from the list
-router.post("/delete/:customlistName", (req, res) => {
-  const listName = req.params.customlistName;
-  const indexToDelete = parseInt(req.body.taskIndex);
+router.post("/delete/:listId", (req, res) => {
+  const taskId = req.body.taskId;
+  repository.deleteTask(taskId);
 
-  if (lists[listName] && indexToDelete >= 0) {
-    lists[listName].splice(indexToDelete, 1);
-  }
-
-  res.redirect(`/lists/${listName}`);
+  res.redirect(`/lists/${req.params.listId}`);
 });
 
 // Unused route — safe to delete or build out later
-router.delete("/:customlistName", (req, res) => {
+router.delete("/:listId", (req, res) => {
   // Could be used to delete entire list if needed
 });
 
 module.exports = router;
-
-
