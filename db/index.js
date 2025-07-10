@@ -1,3 +1,3 @@
-const Repository = require("./inmemory");
+const Repository = require("./file");
 
 module.exports = Repository;

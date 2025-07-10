@@ -1,5 +1,8 @@
 const express = require("express");
 const session = require("express-session");
+const SQLiteStore = require("better-sqlite3-session-store")(session); //this defines SQLiteStore properly
+const BetterSqlite3 = require("better-sqlite3")
+
 const app = express();
 
 app.set("view engine", "ejs");
@@ -12,6 +15,17 @@ app.use(
     secret: "mysecretkey123",
     resave: false,
     saveUninitialized: false,
+     saveUninitialized: false,
+    store: new SQLiteStore({
+      client: new BetterSqlite3("./sessions.db"), 
+      expired: {
+        clear: true,
+        intervalMs: 900000, // clear after 15 mins
+      },
+    }),
+    cookie:{
+      maxAge: 1000 * 60 *60 * 24, // 1 day
+    },
   })
 );
 
@@ -29,6 +43,9 @@ function isAuthenticated(req, res, next) {
     res.redirect("/login");
   }
 }
+
+;
+
 
 // ✅ Routes
 const authRoutes = require("./routes/auth");
