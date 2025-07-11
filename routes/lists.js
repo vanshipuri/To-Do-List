@@ -57,6 +57,17 @@ router.post("/delete-list/:listId", async (req, res) => {
   res.redirect("/lists/Today");
 });
 
+ 
+//  Rename a list
+router.post("/rename/:listId", async (req, res) => {
+  const list = await repository.findList(req.params.listId);
+  if (list && req.body.newName.trim() !== "") {
+    list.name = req.body.newName.trim();
+    await repository.updateList(list);
+  }
+  res.redirect(`/lists/${req.params.listId}`);
+});
+
 
 // ✅ POST: Mark task as completed
 router.post("/complete/:listId", async (req, res) => {
@@ -79,6 +90,19 @@ router.post("/incomplete/:listId", async (req, res) => {
   }
 
   res.redirect(`/lists/${req.params.listId}`);
+});
+
+// ✏️ Rename / Edit a task
+router.post("/edit-task/:taskId", async (req, res) => {
+  const task = await repository.findTask(req.params.taskId);
+
+  if (task && req.body.newTaskText.trim() !== "") {
+    task.text = req.body.newTaskText.trim();
+    await repository.updateTask(task);
+  }
+
+  // Redirect back to the list that task belongs to
+  res.redirect(`/lists/${task.listId}`);
 });
 
 // 🗑️ POST: Delete a task from the list

@@ -59,7 +59,7 @@ class SqliteRepository extends RepositoryBase {
     return list;
   }
   //rename list
-  async updateList(list) {
+  async updateList(updatedList) {
     const stmt = this.db.prepare("UPDATE lists SET name = ? WHERE id = ?");
     stmt.run(updatedList.name, updatedList.id);
   }
