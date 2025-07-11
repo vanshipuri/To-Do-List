@@ -51,6 +51,13 @@ router.post("/create", async (req, res) => {
   }
 });
 
+// Delete list + its tasks
+router.post("/delete-list/:listId", async (req, res) => {
+  await repository.deleteList(req.params.listId);
+  res.redirect("/lists/Today");
+});
+
+
 // ✅ POST: Mark task as completed
 router.post("/complete/:listId", async (req, res) => {
   const taskId = req.body.taskId;

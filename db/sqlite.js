@@ -65,8 +65,8 @@ class SqliteRepository extends RepositoryBase {
   }
   //delete list
   async deleteList(listId) {
-    //  this.db.prepare("DELETE FROM tasks WHERE listId = ?").run(listId);
-    // this.db.prepare("DELETE FROM lists WHERE id = ?").run(listId);
+      this.db.prepare("DELETE FROM tasks WHERE listId = ?").run(listId);
+     this.db.prepare("DELETE FROM lists WHERE id = ?").run(listId);
   }
   //get all tasks under a list
   async getListTasks(listId) {
