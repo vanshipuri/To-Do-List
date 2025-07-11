@@ -30,7 +30,7 @@ router.post("/add/:listId", async (req, res) => {
   const list = await repository.findList(req.params.listId);
   console.log(list, req.params.listId, req.body);
   if (list && req.body.todo) {
-   await repository.createTask(list, req.body.todo);
+    await repository.createTask(list, req.body.todo);
     console.log(repository);
   }
 
@@ -68,7 +68,7 @@ router.post("/incomplete/:listId", async (req, res) => {
   const task = await repository.findTask(taskId);
   if (task) {
     task.completed = false;
-   await repository.updateTask(task);
+    await repository.updateTask(task);
   }
 
   res.redirect(`/lists/${req.params.listId}`);

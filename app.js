@@ -1,9 +1,11 @@
 const express = require("express");
 const session = require("express-session");
 const SQLiteStore = require("better-sqlite3-session-store")(session); //this defines SQLiteStore properly
-const BetterSqlite3 = require("better-sqlite3")
-
+const BetterSqlite3 = require("better-sqlite3");
 const app = express();
+
+
+
 
 app.set("view engine", "ejs");
 app.use(express.static("public"));
