@@ -86,12 +86,32 @@
         </ul>
       </nav>
 
-      <!-- Title -->
-      <div class="mt-6 text-center">
+      
+    <!-- Title -->
+<div class="mt-6 text-center">
   <div class="inline-flex items-center gap-3 justify-center flex-wrap">
 
-    <!-- 📝 Inline Rename Form -->
-    <form action="/lists/rename/<%= selectedList.id %>" method="POST" class="flex items-center gap-2">
+    <!-- Title -->
+    <h2 id="list-title-display" class="text-3xl font-bold text-gray-800">
+      <%= selectedList.name %>
+    </h2>
+
+    <!-- Edit Icon -->
+    <button
+      onclick="toggleListRename()"
+      title="Edit title"
+      class="bg-blue-200 hover:bg-blue-400 text-blue-600 hover:text-blue-800 text-sm px-3 py-1.5 rounded-md transition"
+           >
+      ✏️
+    </button>
+
+    <!--  Hidden Rename Form -->
+    <form
+      id="list-rename-form"
+      action="/lists/rename/<%= selectedList.id %>"
+      method="POST"
+      class="hidden flex items-center gap-2"
+    >
       <input
         type="text"
         name="newName"
@@ -99,13 +119,21 @@
         class="text-2xl font-bold text-gray-800 border border-gray-300 rounded px-3 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-400"
         style="width: auto; min-width: 150px;"
       />
-      <button type="submit" title="Rename list" class="bg-blue-200 text-white px-3 py-1.5 rounded-md hover:bg-blue-400 transition-all">
-        ✏️
+      <button
+        type="submit"
+        class="bg-white text-blue-600 px-3 py-1.5 rounded hover:bg-blue-100 transition"
+      >
+        Save
       </button>
     </form>
 
-    <!-- 🗑️ Delete Button -->
-    <form action="/lists/delete-list/<%= selectedList.id %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this list?')" class="inline">
+    <!--  Delete Button -->
+    <form
+      action="/lists/delete-list/<%= selectedList.id %>"
+      method="POST"
+      onsubmit="return confirm('Are you sure you want to delete this list?')"
+      class="inline"
+    >
       <button
         type="submit"
         title="Delete list"
@@ -114,6 +142,7 @@
         🗑️
       </button>
     </form>
+
   </div>
 </div>
 
@@ -121,7 +150,7 @@
       <div
         class="flex flex-col md:flex-row items-center justify-center gap-6 p-4 flex-wrap"
       >
-        <!-- 📝 Add Task Form -->
+        <!-- Add Task Form -->
         <form
           action="/lists/add/<%= selectedList.id %>"
           method="POST"
@@ -145,69 +174,80 @@
       </div>
 
       <ul class="space-y-3">
-  <% tasks.forEach(function(task) { %>
-    <li class="flex flex-col sm:flex-row sm:items-center justify-between bg-white border rounded-xl px-4 py-3 shadow-sm hover:shadow-md transition-all duration-200">
-
-      <!-- ✅ Left Section: Checkbox + Text -->
-      <form
-        action="/lists/<%= task.completed ? 'incomplete' : 'complete' %>/<%= selectedList.id %>"
-        method="POST"
-        id="form-<%= task.id %>"
-        class="flex items-center gap-3 flex-1"
-      >
-        <input type="hidden" name="taskId" value="<%= task.id %>" />
-
-        <input
-          id="checkbox-<%= task.id %>"
-          type="checkbox"
-          <%= task.completed ? 'checked' : '' %>
-          onchange="document.getElementById('form-<%= task.id %>').submit()"
-          class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500"
-        />
-
-        <label
-          for="checkbox-<%= task.id %>"
-          class="text-sm font-medium <%= task.completed ? 'text-gray-400 line-through' : 'text-gray-900' %> cursor-pointer"
+        <% tasks.forEach(task => { %>
+        <li
+          class="flex flex-col sm:flex-row sm:items-center justify-between bg-white border rounded-xl px-4 py-3 shadow-sm hover:shadow-md transition"
         >
-          <%= task.text %>
-        </label>
-      </form>
+          <!-- ✅ Left Section: Checkbox + Task -->
+          <div class="flex items-center gap-3 flex-1">
+            <!-- ✅ Completion Form -->
+            <form
+              action="/lists/<%= task.completed ? 'incomplete' : 'complete' %>/<%= selectedList.id %>"
+              method="POST"
+              id="form-<%= task.id %>"
+            >
+              <input type="hidden" name="taskId" value="<%= task.id %>" />
+              <input type="checkbox" <%= task.completed ? 'checked' : '' %>
+              onchange="document.getElementById('form-<%= task.id %>').submit()"
+              class="w-4 h-4 text-blue-600 rounded-sm border-gray-300
+              focus:ring-blue-500" />
+            </form>
 
-      <!-- ✅ Right Section: Edit + Delete -->
-      <div class="flex items-center gap-2 mt-2 sm:mt-0">
-        <!-- ✏️ Edit Form -->
-        <form action="/lists/edit-task/<%= task.id %>" method="POST" class="flex items-center gap-2">
-          <input
-            type="text"
-            name="newTaskText"
-            value="<%= task.text %>"
-            class="px-2 py-1 w-40 text-sm rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button
-            type="submit"
-            class="text-white bg-blue-500 px-3 py-1.5 rounded-md text-sm hover:bg-blue-600"
-          >
-            Save
-          </button>
-        </form>
+            <!-- ✅ Static Task Text -->
+            <span
+              id="task-display-<%= task.id %>"
+              class="text-sm <%= task.completed ? 'text-gray-400 line-through' : 'text-gray-900' %>"
+            >
+              <%= task.text %>
+            </span>
 
-        <!-- 🗑️ Delete Form -->
-        <form action="/lists/delete/<%= selectedList.id %>" method="POST">
-          <input type="hidden" name="taskId" value="<%= task.id %>" />
-          <button
-            type="submit"
-            class="bg-red-100 hover:bg-red-500 hover:text-white text-red-600 px-3 py-1.5 rounded-md transition"
-            title="Delete task"
-          >
-            🗑️
-          </button>
-        </form>
-      </div>
+            <!-- 📝 Hidden Edit Form -->
+            <form
+              id="edit-form-<%= task.id %>"
+              action="/lists/edit-task/<%= task.id %>"
+              method="POST"
+              class="hidden flex items-center gap-2 w-full sm:w-auto"
+            >
+              <input
+                type="text"
+                name="newTaskText"
+                value="<%= task.text %>"
+                class="px-2 py-1 text-sm border rounded w-44 focus:ring-2 focus:ring-blue-400"
+              />
+              <button
+                type="submit"
+                class="bg-white text-blue-600 px-3 py-1.5 rounded hover:bg-blue-100 transition"
+              >
+                Save
+              </button>
+            </form>
+          </div>
 
-    </li>
-  <% }) %>
-</ul>
+          <!--  Right Section: Edit + Delete -->
+          <div class="flex items-center gap-2 mt-2 sm:mt-0">
+            <!-- Edit Button -->
+            <button
+              onclick="toggleEdit(<%= task.id %>)"
+              class="bg-blue-200 hover:bg-blue-400 text-blue-600 hover:text-blue-800 text-sm px-3 py-1.5 rounded-md transition"
+            >
+              ✏️
+            </button>
 
+            <!--  Delete Button -->
+            <form action="/lists/delete/<%= selectedList.id %>" method="POST">
+              <input type="hidden" name="taskId" value="<%= task.id %>" />
+              <button
+                type="submit"
+                class="bg-red-100 hover:bg-red-500 hover:text-white text-red-600 px-3 py-1.5 rounded-md transition"
+                title="Delete task"
+              >
+                🗑️
+              </button>
+            </form>
+          </div>
+        </li>
+        <% }) %>
+      </ul>
     </div>
 
     <!-- Footer -->
@@ -216,5 +256,19 @@
     >
       <%- include('partials/footer'); %>
     </footer>
+    <script>
+      function toggleEdit(taskId) {
+        const displaySpan = document.getElementById(`task-display-${taskId}`);
+        const editForm = document.getElementById(`edit-form-${taskId}`);
+
+        displaySpan.style.display = "none";
+        editForm.classList.remove("hidden");
+      }
+
+  function toggleListRename() {
+    document.getElementById("list-title-display").style.display = "none";
+    document.getElementById("list-rename-form").classList.remove("hidden");
+  }
+    </script>
   </body>
 </html>
