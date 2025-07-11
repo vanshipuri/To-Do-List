@@ -2,6 +2,8 @@ const Database = require("better-sqlite3");
 const RepositoryBase = require("./base");
 const List = require("./list");
 const Task = require("./task");
+const bcrypt = require("bcrypt");
+const User = require("./user");
 
 class SqliteRepository extends RepositoryBase {
   /**
@@ -29,6 +31,13 @@ class SqliteRepository extends RepositoryBase {
         name TEXT NOT NULL
         )
         `);
+    this.db.exec(`
+  CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE NOT NULL,
+    password TEXT UNIQUE NOT NULL
+  )
+`);
   }
   //get all lists
   async getLists() {
@@ -65,8 +74,8 @@ class SqliteRepository extends RepositoryBase {
   }
   //delete list
   async deleteList(listId) {
-      this.db.prepare("DELETE FROM tasks WHERE listId = ?").run(listId);
-     this.db.prepare("DELETE FROM lists WHERE id = ?").run(listId);
+    this.db.prepare("DELETE FROM tasks WHERE listId = ?").run(listId);
+    this.db.prepare("DELETE FROM lists WHERE id = ?").run(listId);
   }
   //get all tasks under a list
   async getListTasks(listId) {
@@ -111,6 +120,47 @@ class SqliteRepository extends RepositoryBase {
     const stmt = this.db.prepare("DELETE FROM tasks WHERE id = ?");
     stmt.run(taskId);
   }
+
+  //find user
+  async findUser(username) {
+    const stmt = this.db.prepare("SELECT * FROM users WHERE username = ?");
+    const row = stmt.get(username);
+    if (!row) return null;
+
+    const user = new User(row.username);
+    user.id = row.id;
+    user.password_hash = row.password_hash;
+    return user;
+  }
+
+  //create user
+  async createUser(username, password) {
+    console.log("Hash start: ", new Date().getTime());
+    const hash = await bcrypt.hash(password, 10);
+    console.log("Hash end: ", new Date().getTime());
+
+    const stmt = this.db.prepare(
+      "INSERT INTO users (username, password_hash) VALUES (?, ?)"
+    );
+    const result = stmt.run(username, hash);
+    const user = new User(username, hash);
+    user.id = result.lastInsertRowid;
+    return user;
+  }
+
+  //validate user
+  //async validateUser(username, password) {
+  // const stmt = this.db.prepare("SELECT * FROM users WHERE username = ?");
+  //const row = stmt.get(username);
+  //if (!row) return null;
+
+  //const match = await bcrypt.compare(password, row.password_hash);
+  //if (!match) return null;
+
+  //const user = new User(row.username, row.password_hash);
+  //user.id = row.id;
+  //return user;
+  //}
 }
 
 module.exports = SqliteRepository;

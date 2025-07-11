@@ -10,6 +10,9 @@ class RepositoryBase {
   async createTask(list, text) {}
   async updateTask(task) {}
   async deleteTask(taskId) {}
+
+  async findUser(username){}
+  async createUser(username, password) {}
 }
 
 module.exports = RepositoryBase;
