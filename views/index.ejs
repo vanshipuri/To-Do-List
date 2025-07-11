@@ -96,8 +96,9 @@
       <%= selectedList.name %>
     </h2>
 
-    <!-- Edit Icon -->
+    <!-- Edit Icon be visible only when rename form is hidden -->
     <button
+    id="edit-button"
       onclick="toggleListRename()"
       title="Edit title"
       class="bg-blue-200 hover:bg-blue-400 text-blue-600 hover:text-blue-800 text-sm px-3 py-1.5 rounded-md transition"
@@ -121,9 +122,9 @@
       />
       <button
         type="submit"
-        class="bg-white text-blue-600 px-3 py-1.5 rounded hover:bg-blue-100 transition"
-      >
-        Save
+         class="bg-yellow-100 text-blue-600 px-3 py-1.5 rounded hover:bg-yellow-300 transition"
+              >
+              💾
       </button>
     </form>
 
@@ -195,7 +196,7 @@
 
             <!-- ✅ Static Task Text -->
             <span
-              id="task-display-<%= task.id %>"
+              id="task-label-<%= task.id %>"
               class="text-sm <%= task.completed ? 'text-gray-400 line-through' : 'text-gray-900' %>"
             >
               <%= task.text %>
@@ -216,18 +217,20 @@
               />
               <button
                 type="submit"
-                class="bg-white text-blue-600 px-3 py-1.5 rounded hover:bg-blue-100 transition"
+                class="bg-yellow-100 text-blue-600 px-3 py-1.5 rounded hover:bg-yellow-300 transition"
               >
-                Save
+              💾
               </button>
             </form>
           </div>
 
           <!--  Right Section: Edit + Delete -->
           <div class="flex items-center gap-2 mt-2 sm:mt-0">
-            <!-- Edit Button -->
+            <!-- Edit Button only show when edit option is not visible -->
             <button
-              onclick="toggleEdit(<%= task.id %>)"
+            id="edit-btn-<%= task.id %>"
+              onclick="toggleEditTask(<%= task.id %>)"
+              title="Edittask"
               class="bg-blue-200 hover:bg-blue-400 text-blue-600 hover:text-blue-800 text-sm px-3 py-1.5 rounded-md transition"
             >
               ✏️
@@ -256,6 +259,7 @@
     >
       <%- include('partials/footer'); %>
     </footer>
+
     <script>
       function toggleEdit(taskId) {
         const displaySpan = document.getElementById(`task-display-${taskId}`);
@@ -269,6 +273,28 @@
     document.getElementById("list-title-display").style.display = "none";
     document.getElementById("list-rename-form").classList.remove("hidden");
   }
+
+  function toggleListRename() {
+    const titleDisplay = document.getElementById("list-title-display");
+    const renameForm = document.getElementById("list-rename-form");
+    const editButton = document.getElementById("edit-btn");
+
+    // Hide title and edit button, show form
+    titleDisplay.style.display = "none";
+    editButton.style.display = "none";
+    renameForm.classList.remove("hidden");
+  }
+
+  function toggleEditTask(taskId) {
+    const label = document.getElementById(`task-label-${taskId}`);
+    const editForm = document.getElementById(`edit-form-${taskId}`);
+    const editBtn = document.getElementById(`edit-btn-${taskId}`);
+
+    label.style.display = "none";
+    editForm.classList.remove("hidden");
+    editBtn.style.display = "none";
+  }
+
     </script>
   </body>
 </html>
