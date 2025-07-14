@@ -99,12 +99,12 @@ class SqliteRepository extends RepositoryBase {
   }
 
   //create new task
-  async createTask(list, text, userId) {
+  async createTask(list, text) {
     const stmt = this.db.prepare(
-      "INSERT INTO tasks (listId, text, userId) VALUES (?, ?, ?)"
+      "INSERT INTO tasks (listId, text) VALUES (?, ?)"
     );
-    const result = stmt.run(list.id, text, userId);
-    const task = new Task(list.id, text );
+    const result = stmt.run(list.id, text);
+    const task = new Task(list.id, text);
     task.id = result.lastInsertRowid;
     return task;
   }
