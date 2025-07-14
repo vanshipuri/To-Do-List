@@ -53,7 +53,9 @@ class SqliteRepository extends RepositoryBase {
   }
   //find all list
   async findList(listId, userId) {
-    const stmt = this.db.prepare("SELECT * FROM lists WHERE id = ? AND userId = ?");
+    const stmt = this.db.prepare(
+      "SELECT * FROM lists WHERE id = ? AND userId = ?"
+    );
     const row = stmt.get(listId, userId);
     if (!row) return null;
     const list = new List(row.name);
@@ -62,7 +64,9 @@ class SqliteRepository extends RepositoryBase {
   }
   //add new list
   async createList(text, userId) {
-    const stmt = this.db.prepare("INSERT INTO lists (name , userId) VALUES (?, ?)");
+    const stmt = this.db.prepare(
+      "INSERT INTO lists (name , userId) VALUES (?, ?)"
+    );
     const result = stmt.run(text, userId);
     const list = new List(text);
     list.id = result.lastInsertRowid;
@@ -70,13 +74,17 @@ class SqliteRepository extends RepositoryBase {
   }
   //rename list
   async updateList(updatedList, userId) {
-    const stmt = this.db.prepare("UPDATE lists SET name = ? WHERE id = ? AND userId = ?");
+    const stmt = this.db.prepare(
+      "UPDATE lists SET name = ? WHERE id = ? AND userId = ?"
+    );
     stmt.run(updatedList.name, updatedList.id, userId);
   }
   //delete list
   async deleteList(listId, userId) {
-    this.db.prepare("DELETE FROM tasks WHERE listId = ? AND userId = ?").run(listId, userId);
-    this.db.prepare("DELETE FROM lists WHERE id = ? AND userId = ?").run(listId, userId);
+    this.db.prepare("DELETE FROM tasks WHERE listId = ?").run(listId);
+    this.db
+      .prepare("DELETE FROM lists WHERE id = ? AND userId = ?")
+      .run(listId, userId);
   }
   //get all tasks under a list
   async getListTasks(listId) {
@@ -113,7 +121,7 @@ class SqliteRepository extends RepositoryBase {
     const stmt = this.db.prepare(
       "UPDATE tasks SET text = ?, completed = ? WHERE id = ? "
     );
-    stmt.run(task.text, task.completed ? 1 : 0, task.id );
+    stmt.run(task.text, task.completed ? 1 : 0, task.id);
   }
 
   //delete task
