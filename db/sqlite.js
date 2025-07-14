@@ -28,7 +28,8 @@ class SqliteRepository extends RepositoryBase {
     this.db.exec(`
         CREATE TABLE IF NOT EXISTS lists(
         id  INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL
+        name TEXT NOT NULL,
+        userId INTEGER NOT NULL
         )
         `);
     this.db.exec(`
@@ -40,9 +41,9 @@ class SqliteRepository extends RepositoryBase {
     `);
   }
   //get all lists
-  async getLists() {
-    const stmt = this.db.prepare("SELECT * FROM lists");
-    const rows = stmt.all();
+  async getLists(userId) {
+    const stmt = this.db.prepare("SELECT * FROM lists WHERE userId = ?");
+    const rows = stmt.all(userId);
     return rows.map((row) => {
       console.log(row);
       const list = new List(row.name);
@@ -51,36 +52,36 @@ class SqliteRepository extends RepositoryBase {
     });
   }
   //find all list
-  async findList(listId) {
-    const stmt = this.db.prepare("SELECT * FROM lists WHERE id = ?");
-    const row = stmt.get(listId);
+  async findList(listId, userId) {
+    const stmt = this.db.prepare("SELECT * FROM lists WHERE id = ? AND userId = ?");
+    const row = stmt.get(listId, userId);
     if (!row) return null;
     const list = new List(row.name);
     list.id = row.id;
     return list;
   }
   //add new list
-  async createList(text) {
-    const stmt = this.db.prepare("INSERT INTO lists (name) VALUES (?)");
-    const result = stmt.run(text);
+  async createList(text, userId) {
+    const stmt = this.db.prepare("INSERT INTO lists (name , userId) VALUES (?, ?)");
+    const result = stmt.run(text, userId);
     const list = new List(text);
     list.id = result.lastInsertRowid;
     return list;
   }
   //rename list
-  async updateList(updatedList) {
-    const stmt = this.db.prepare("UPDATE lists SET name = ? WHERE id = ?");
-    stmt.run(updatedList.name, updatedList.id);
+  async updateList(updatedList, userId) {
+    const stmt = this.db.prepare("UPDATE lists SET name = ? WHERE id = ? AND userId = ?");
+    stmt.run(updatedList.name, updatedList.id, userId);
   }
   //delete list
-  async deleteList(listId) {
-    this.db.prepare("DELETE FROM tasks WHERE listId = ?").run(listId);
-    this.db.prepare("DELETE FROM lists WHERE id = ?").run(listId);
+  async deleteList(listId, userId) {
+    this.db.prepare("DELETE FROM tasks WHERE listId = ? AND userId = ?").run(listId, userId);
+    this.db.prepare("DELETE FROM lists WHERE id = ? AND userId = ?").run(listId, userId);
   }
   //get all tasks under a list
-  async getListTasks(listId) {
-    const stmt = this.db.prepare("SELECT * FROM tasks WHERE listId = ?");
-    const rows = stmt.all(listId);
+  async getListTasks(listId, userId) {
+    const stmt = this.db.prepare("SELECT * FROM tasks WHERE listId = ? AND userId = ?");
+    const rows = stmt.all(listId, userId);
     return rows.map((row) => {
       const task = new Task(row.listId, row.text, !!row.completed);
       task.id = row.id;
@@ -89,7 +90,7 @@ class SqliteRepository extends RepositoryBase {
   }
   //find task
   async findTask(taskId) {
-    const stmt = this.db.prepare("SELECT * FROM tasks WHERE id = ?");
+    const stmt = this.db.prepare("SELECT * FROM tasks WHERE id = ? ");
     const row = stmt.get(taskId);
     if (!row) return null;
     const task = new Task(row.listId, row.text, !!row.completed);
@@ -98,26 +99,26 @@ class SqliteRepository extends RepositoryBase {
   }
 
   //create new task
-  async createTask(list, text) {
+  async createTask(list, text, userId) {
     const stmt = this.db.prepare(
-      "INSERT INTO tasks (listId, text) VALUES (?, ?)"
+      "INSERT INTO tasks (listId, text, userId) VALUES (?, ?, ?)"
     );
-    const result = stmt.run(list.id, text);
-    const task = new Task(list.id, text);
+    const result = stmt.run(list.id, text, userId);
+    const task = new Task(list.id, text );
     task.id = result.lastInsertRowid;
     return task;
   }
   //update the task
   async updateTask(task) {
     const stmt = this.db.prepare(
-      "UPDATE tasks SET text = ?, completed = ? WHERE id = ?"
+      "UPDATE tasks SET text = ?, completed = ? WHERE id = ? "
     );
-    stmt.run(task.text, task.completed ? 1 : 0, task.id);
+    stmt.run(task.text, task.completed ? 1 : 0, task.id );
   }
 
   //delete task
   async deleteTask(taskId) {
-    const stmt = this.db.prepare("DELETE FROM tasks WHERE id = ?");
+    const stmt = this.db.prepare("DELETE FROM tasks WHERE id = ? ");
     stmt.run(taskId);
   }
 

@@ -1,23 +1,25 @@
 const express = require("express");
-//const router = express.Router();
-//const Repository = require("../db");
+
 module.exports = (repository) => {
   const router = express.Router();
-  //const repository = new Repository();
 
   // 🟢 GET: Render custom list
   router.get("/:listId", async (req, res) => {
-    let list = await repository.findList(req.params.listId);
+    const userId = req.session.user.id;
+
+    let list = await repository.findList(req.params.listId, userId);
+
     if (!list) {
-      list = (await repository.getLists())[0];
-    }
-    if (!list) {
-      list = await repository.createList("My List");
+      const lists = await repository.getLists(userId);
+      list = lists[0]; //safely access first list
     }
 
-    const tasks = await repository.getListTasks(list.id);
+    if (!list) {
+      list = await repository.createList("My List", userId);
+    }
 
-    const allLists = await repository.getLists();
+    const tasks = await repository.getListTasks(list.id, userId);
+    const allLists = await repository.getLists(userId);
 
     res.render("index", {
       selectedList: list,
@@ -28,61 +30,71 @@ module.exports = (repository) => {
 
   // 🟢 POST: Add a new task to a list
   router.post("/add/:listId", async (req, res) => {
-    const list = await repository.findList(req.params.listId);
-    console.log(list, req.params.listId, req.body);
+    const userId = req.session.user.id;
+    const list = await repository.findList(req.params.listId, userId);
+
     if (list && req.body.todo) {
-      await repository.createTask(list, req.body.todo);
-      console.log(repository);
+      await repository.createTask(list, req.body.todo, userId);
     }
 
     res.redirect(`/lists/${req.params.listId}`);
   });
 
-  // ✅ 2. Create New List Route (🚨 should NOT be inside another route)
+  // ✅ Create New List
   router.post("/create", async (req, res) => {
+    const userId = req.session.user.id;
     const newListName = req.body.newList.trim();
 
     if (newListName.length > 0) {
       const formatted =
         newListName.charAt(0).toUpperCase() + newListName.slice(1);
-      const newList = await repository.createList(formatted);
+      const newList = await repository.createList(formatted, userId);
       res.redirect(`/lists/${newList.id}`);
     } else {
       res.redirect("/"); // fallback
     }
   });
 
-  // Delete list + its tasks
+  // 🗑️ Delete list + its tasks
   router.post("/delete-list/:listId", async (req, res) => {
-    await repository.deleteList(req.params.listId);
+    const userId = req.session.user.id;
+    await repository.deleteList(req.params.listId, userId);
     res.redirect("/lists/Today");
   });
 
-  //  Rename a list
+  // ✏️ Rename a list
   router.post("/rename/:listId", async (req, res) => {
-    const list = await repository.findList(req.params.listId);
+    const userId = req.session.user.id;
+    const list = await repository.findList(req.params.listId, userId);
+
     if (list && req.body.newName.trim() !== "") {
       list.name = req.body.newName.trim();
-      await repository.updateList(list);
+      await repository.updateList(list, userId);
     }
+
     res.redirect(`/lists/${req.params.listId}`);
   });
 
-  // ✅ POST: Mark task as completed
+  // ✅ Mark task as completed
   router.post("/complete/:listId", async (req, res) => {
+    const userId = req.session.user.id;
     const taskId = req.body.taskId;
-    const task = await repository.findTask(taskId);
+    const task = await repository.findTask(taskId, userId);
+
     if (task) {
       task.completed = true;
       await repository.updateTask(task);
     }
+
     res.redirect(`/lists/${req.params.listId}`);
   });
 
-  // ✅ POST: Mark task as incompleted
+  // ✅ Mark task as incomplete
   router.post("/incomplete/:listId", async (req, res) => {
+    const userId = req.session.user.id;
     const taskId = req.body.taskId;
-    const task = await repository.findTask(taskId);
+    const task = await repository.findTask(taskId, userId);
+
     if (task) {
       task.completed = false;
       await repository.updateTask(task);
@@ -91,30 +103,31 @@ module.exports = (repository) => {
     res.redirect(`/lists/${req.params.listId}`);
   });
 
-  // ✏️ Rename / Edit a task
-  router.post("/edit-task/:taskId", async (req, res) => {
-    const task = await repository.findTask(req.params.taskId);
+  // ✏️ Edit task
+router.post("/edit-task/:taskId", async (req, res) => {
+  const task = await repository.findTask(req.params.taskId);
 
-    if (task && req.body.newTaskText.trim() !== "") {
-      task.text = req.body.newTaskText.trim();
-      await repository.updateTask(task);
-    }
-
+  if (task && req.body.newTaskText.trim() !== "") {
+    task.text = req.body.newTaskText.trim();
+    await repository.updateTask(task);
     // Redirect back to the list that task belongs to
-    res.redirect(`/lists/${task.listId}`);
-  });
+    return res.redirect(`/lists/${task.listId}`);
+  } else if (task) {
+    // If no new text provided, just redirect to the list
+    return res.redirect(`/lists/${task.listId}`);
+  } else {
+    // If task not found, redirect to the default list
+    return res.redirect("/lists/Today");
+  }
+});
 
-  // 🗑️ POST: Delete a task from the list
+  // 🗑️ Delete task
   router.post("/delete/:listId", async (req, res) => {
+    const userId = req.session.user.id;
     const taskId = req.body.taskId;
-    await repository.deleteTask(taskId);
+    await repository.deleteTask(taskId, userId);
 
     res.redirect(`/lists/${req.params.listId}`);
-  });
-
-  // Unused route — safe to delete or build out later
-  router.delete("/:listId", async (req, res) => {
-    // Could be used to delete entire list if needed
   });
 
   return router;
