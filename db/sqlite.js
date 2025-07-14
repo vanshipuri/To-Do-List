@@ -79,9 +79,9 @@ class SqliteRepository extends RepositoryBase {
     this.db.prepare("DELETE FROM lists WHERE id = ? AND userId = ?").run(listId, userId);
   }
   //get all tasks under a list
-  async getListTasks(listId, userId) {
-    const stmt = this.db.prepare("SELECT * FROM tasks WHERE listId = ? AND userId = ?");
-    const rows = stmt.all(listId, userId);
+  async getListTasks(listId) {
+    const stmt = this.db.prepare("SELECT * FROM tasks WHERE listId = ?");
+    const rows = stmt.all(listId);
     return rows.map((row) => {
       const task = new Task(row.listId, row.text, !!row.completed);
       task.id = row.id;
