@@ -32,12 +32,12 @@ class SqliteRepository extends RepositoryBase {
         )
         `);
     this.db.exec(`
-  CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT UNIQUE NOT NULL,
-    password TEXT UNIQUE NOT NULL
-  )
-`);
+      CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE NOT NULL,
+        password_hash TEXT UNIQUE NOT NULL
+      )
+    `);
   }
   //get all lists
   async getLists() {
