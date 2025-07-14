@@ -1,11 +1,12 @@
+require("dotenv").config(); // Load environment variables from .env file
+
 const express = require("express");
 const session = require("express-session");
 const SQLiteStore = require("better-sqlite3-session-store")(session); //this defines SQLiteStore properly
 const BetterSqlite3 = require("better-sqlite3");
+const Repository = require("./db"); // Import the repository wrapper
+const repo = Repository(); // Get the appropriate repository based on environment
 const app = express();
-
-
-
 
 app.set("view engine", "ejs");
 app.use(express.static("public"));
@@ -17,16 +18,16 @@ app.use(
     secret: "mysecretkey123",
     resave: false,
     saveUninitialized: false,
-     saveUninitialized: false,
+    saveUninitialized: false,
     store: new SQLiteStore({
-      client: new BetterSqlite3("./sessions.db"), 
+      client: new BetterSqlite3("./sessions.db"),
       expired: {
         clear: true,
         intervalMs: 900000, // clear after 15 mins
       },
     }),
-    cookie:{
-      maxAge: 1000 * 60 *60 * 24, // 1 day
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24, // 1 day
     },
   })
 );
@@ -46,12 +47,9 @@ function isAuthenticated(req, res, next) {
   }
 }
 
-;
-
-
 // ✅ Routes
-const authRoutes = require("./routes/auth");
-const listRoutes = require("./routes/lists");
+const authRoutes = require("./routes/auth")(repo);
+const listRoutes = require("./routes/lists")(repo);
 
 app.use("/", authRoutes);
 app.use("/lists", isAuthenticated, listRoutes);
@@ -62,4 +60,3 @@ app.get("/", (req, res) => {
 });
 
 module.exports = app;
-

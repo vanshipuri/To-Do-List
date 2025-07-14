@@ -34,8 +34,8 @@ class InMemoryRepository extends RepositoryBase {
     }
   }
   async deleteList(listId) {
-    //this.lists = this.lists.filter((task) => task.listId == listId);
-    //list.id = this.listSequence--;
+    this.lists = this.lists.filter((task) => task.listId == listId);
+    list.id = this.listSequence--;
   }
 
   async getListTasks(listId) {
@@ -59,6 +59,18 @@ class InMemoryRepository extends RepositoryBase {
   async deleteTask(taskId) {
     this.tasks = this.tasks.filter((task) => task.id != taskId);
   }
+ // User Methods
+  async findUser(username) {
+    return this.users.find((user) => user.username === username) || null;
+  }
+
+  async createUser(username, passwordHash) {
+    const user = new User(username, passwordHash);
+    user.id = this.userSequence++;
+    this.users.push(user);
+    return user;
+  }
+
 }
 
 module.exports = InMemoryRepository;
