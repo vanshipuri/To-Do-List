@@ -21,6 +21,11 @@ This is a **To-Do List** web app that lets users manage tasks and todos across m
 - Mark tasks as complete/incomplete.
 - Full CRUD on lists and tasks.
 - Login-based user session and individually owned lists and tasks.
+- Responsive design for seamless user experience across devices.
+- Repository design pattern for switching between different data storage solutions based on environment variable `DB_REPOSITORY`:
+- - `memory`: In-memory data storage for development and testing.
+- - `file`: File-based data storage for persistence during development (using JSON).
+- - `sqlite`: SQLite database for production (using sqlite3).
 
 ---
 
